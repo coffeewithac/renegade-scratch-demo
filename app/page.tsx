@@ -763,15 +763,17 @@ export default function App() {
   const [screen, setScreen] = useState("dashboard");
   const [finalCount, setFinalCount] = useState(410);
 
+  const navigate = (s: string) => { window.scrollTo(0, 0); setScreen(s); };
+
   return (
     <div style={{ fontFamily: font, background: C.offWhite, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       <NavBar screen={screen} />
       <div style={{ flex: 1 }}>
-        {screen === "dashboard" && <Dashboard onOpen={() => setScreen("review")} />}
-        {screen === "review" && <MenuReview onAdjust={() => setScreen("adjust")} onBack={() => setScreen("dashboard")} />}
-        {screen === "adjust" && <Adjust onConfirm={c => { setFinalCount(c); setScreen("confirmed"); }} onBack={() => setScreen("review")} />}
-        {screen === "confirmed" && <Confirmation finalCount={finalCount} onReset={() => setScreen("dashboard")} />}
+        {screen === "dashboard" && <Dashboard onOpen={() => navigate("review")} />}
+        {screen === "review" && <MenuReview onAdjust={() => navigate("adjust")} onBack={() => navigate("dashboard")} />}
+        {screen === "adjust" && <Adjust onConfirm={c => { setFinalCount(c); navigate("confirmed"); }} onBack={() => navigate("review")} />}
+        {screen === "confirmed" && <Confirmation finalCount={finalCount} onReset={() => navigate("dashboard")} />}
       </div>
       <Footer />
     </div>

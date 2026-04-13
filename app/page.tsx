@@ -111,7 +111,7 @@ const Tag = ({ id }: { id: string }) => {
   );
 };
 
-const Card = ({ children, style = {}, ...props }) => (
+const Card = ({ children, style = {}, ...props }: { children: React.ReactNode; style?: React.CSSProperties; [key: string]: unknown }) => (
   <div style={{
     background: C.white, borderRadius: 12,
     border: `1px solid ${C.border}`,

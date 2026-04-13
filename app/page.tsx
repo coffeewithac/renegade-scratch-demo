@@ -96,7 +96,7 @@ const tagMeta = {
 };
 
 // ─── Shared Components ───
-const Tag = ({ id }) => {
+const Tag = ({ id }: { id: string }) => {
   const t = tagMeta[id];
   if (!t) return null;
   return (

@@ -1,24 +1,57 @@
 "use client";
-
 import { useState, useEffect } from "react";
 
-/* ═══════════════════════════════════════════════════════
-   RENEGADE SCRATCH — School Ordering Portal Demo
-   Northern Virginia Private School MVP
-   Chef Ann Foundation → For-Profit Arm
-   ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   RENEGADE SCRATCH — Powered by Chef Ann Foundation
+   School Ordering Portal Demo · Northern Virginia MVP
+   
+   Brand alignment: Chef Ann Foundation's bright green, white-forward,
+   warm + mission-driven aesthetic. Clean, modern, trustworthy.
+   ═══════════════════════════════════════════════════════════════════ */
 
+// ─── CAF Brand Tokens ───
 const C = {
-  forest: "#1B5E20", forestMid: "#2E7D32", forestLight: "#4CAF50",
-  warmRed: "#BF360C", warmRedBright: "#E64A19",
-  cream: "#FFFAF4", gold: "#F9A825", goldPale: "#FFF8E1",
-  charcoal: "#1E1E1E", body: "#3E3830", warmGray: "#7D756C",
-  border: "#E6DFD6", lightBg: "#F7F3EE", white: "#FFFFFF",
-  sage: "#E3EDDF", coral: "#FF6F42", coralPale: "#FFF0EA",
+  // Primary — CAF's signature bright green
+  green: "#78BE20",
+  greenDark: "#5A9A10",
+  greenDeep: "#3D7A0A",
+  greenPale: "#EDF7E0",
+  greenMist: "#F4FAF0",
+  // Accent — warm orange (used on CAF site for CTAs)
+  orange: "#F26522",
+  orangeLight: "#FFF0E8",
+  // Neutrals — clean, professional
+  black: "#1A1A1A",
+  dark: "#2D2D2D",
+  body: "#4A4A4A",
+  muted: "#7A7A7A",
+  subtle: "#A0A0A0",
+  border: "#E5E5E5",
+  light: "#F5F5F5",
+  offWhite: "#FAFAFA",
+  white: "#FFFFFF",
+  // Utility accents
+  gold: "#F5A623",
+  goldPale: "#FFF9ED",
+  blue: "#2B7BB9",
+  bluePale: "#EBF5FF",
+  red: "#D0021B",
+  redPale: "#FFF0F2",
 };
 
-const font = `'DM Sans', 'Segoe UI', system-ui, sans-serif`;
+const font = `'Source Sans 3', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
 
+// CAF Logo SVG (simplified mark — green leaf/spoon motif)
+const CAFLogo = ({ size = 28 }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+    <circle cx="20" cy="20" r="20" fill={C.green} />
+    <path d="M13 28c0-8 3-15 7-18 4 3 7 10 7 18" stroke={C.white} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+    <path d="M20 12v18" stroke={C.white} strokeWidth="2" strokeLinecap="round" />
+    <path d="M15 22c2.5-1 7.5-1 10 0" stroke={C.white} strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+// ─── Data ───
 const persona = {
   name: "James Whitfield",
   title: "Director of Auxiliary Programs",
@@ -29,266 +62,346 @@ const persona = {
   email: "j.whitfield@potomacridgeacademy.org",
 };
 
-const upcomingOrder = {
+const order = {
   week: "April 20 – 24, 2026",
-  theme: "\u{1F30E} Earth Week Harvest",
+  theme: "Earth Week Harvest",
+  emoji: "\u{1F33F}",
   tagline: "Farm-to-tray meals celebrating our planet — sourced from Virginia farms within 100 miles.",
-  currentCount: 410,
-  pricePerMeal: 9.25,
+  count: 410,
+  price: 9.00,
   days: [
-    { day: "Monday", entree: "Garden Veggie Lasagna with Basil Cream", side: "Roasted Shenandoah Beet & Arugula Salad", grain: "Housemade Garlic Focaccia", fruit: "Virginia Apple Cups", tags: ["vegetarian", "local-hero"] },
-    { day: "Tuesday", entree: "Herb-Crusted Chicken Thighs", side: "Quinoa Pilaf with Butternut Squash", grain: "Scratch Cornbread Muffin", fruit: "Seasonal Berry Medley", tags: ["protein-power", "whole-grain"] },
-    { day: "Wednesday", entree: "Chesapeake Fish Tacos with Cilantro-Lime Slaw", side: "Black Bean & Sweet Corn Salad", grain: "Housemade Flour Tortillas", fruit: "Fresh-Cut Mango", tags: ["omega-rich", "scratch-tortilla"] },
+    { day: "Monday", entree: "Garden Veggie Lasagna with Basil Cream", side: "Roasted Shenandoah Beet & Arugula Salad", grain: "Housemade Garlic Focaccia", fruit: "Virginia Apple Cups", tags: ["vegetarian", "local"] },
+    { day: "Tuesday", entree: "Herb-Crusted Chicken Thighs", side: "Quinoa Pilaf with Butternut Squash", grain: "Scratch Cornbread Muffin", fruit: "Seasonal Berry Medley", tags: ["protein", "whole-grain"] },
+    { day: "Wednesday", entree: "Chesapeake Fish Tacos with Cilantro-Lime Slaw", side: "Black Bean & Sweet Corn Salad", grain: "Housemade Flour Tortillas", fruit: "Fresh-Cut Mango", tags: ["omega-3", "scratch"] },
     { day: "Thursday", entree: "Slow-Braised Beef Bolognese over Penne", side: "Caesar Salad with Scratch Croutons", grain: "Whole Wheat Penne", fruit: "Honeycrisp Apple Slices", tags: ["comfort", "whole-grain"] },
-    { day: "Friday", entree: "BBQ Pulled Pork Sliders", side: "Rainbow Coleslaw", grain: "Potato Buns (Scratch-Baked)", fruit: "Watermelon Wedges", tags: ["friday-fave", "celebration"] },
+    { day: "Friday", entree: "BBQ Pulled Pork Sliders", side: "Rainbow Coleslaw", grain: "Potato Buns (Scratch-Baked)", fruit: "Watermelon Wedges", tags: ["celebration", "scratch"] },
   ],
 };
 
-const pastOrders = [
-  { week: "Apr 14–18", theme: "\u{1F9EA} Finals Fuel", meals: 410, total: "$18,962.50" },
-  { week: "Apr 7–11", theme: "\u{1F338} Cherry Blossom Menu", meals: 410, total: "$18,962.50" },
-  { week: "Mar 31–Apr 4", theme: "\u{1F3AD} World Cultures Week", meals: 406, total: "$18,777.50" },
+const history = [
+  { week: "Apr 14–18", theme: "\u{1F9EA} Finals Fuel", total: "$18,450.00" },
+  { week: "Apr 7–11", theme: "\u{1F338} Cherry Blossom Menu", total: "$18,450.00" },
+  { week: "Mar 31–Apr 4", theme: "\u{1F30D} World Cultures Week", total: "$18,270.00" },
 ];
 
-const tagColors: Record<string, { bg: string; text: string; label: string }> = {
-  vegetarian: { bg: "#E8F5E9", text: "#2E7D32", label: "Vegetarian" },
-  "local-hero": { bg: "#FFF3E0", text: "#E65100", label: "Local Hero" },
-  "protein-power": { bg: "#FCE4EC", text: "#C62828", label: "Protein Power" },
-  "whole-grain": { bg: "#FFF8E1", text: "#F57F17", label: "Whole Grain" },
-  "omega-rich": { bg: "#E3F2FD", text: "#1565C0", label: "Omega-Rich" },
-  "scratch-tortilla": { bg: "#FFF3E0", text: "#BF360C", label: "Scratch-Made" },
-  comfort: { bg: "#EFEBE9", text: "#4E342E", label: "Comfort Classic" },
-  "friday-fave": { bg: "#F3E5F5", text: "#7B1FA2", label: "Friday Fave" },
-  celebration: { bg: "#FFF8E1", text: "#F57F17", label: "Celebration" },
+const tagMeta = {
+  vegetarian: { label: "Vegetarian", color: C.green },
+  local: { label: "Virginia Sourced", color: "#E65100" },
+  protein: { label: "Protein Power", color: C.blue },
+  "whole-grain": { label: "Whole Grain", color: "#8D6E27" },
+  "omega-3": { label: "Omega-Rich", color: C.blue },
+  scratch: { label: "Scratch-Made", color: C.orange },
+  comfort: { label: "Comfort Classic", color: "#6D4C41" },
+  celebration: { label: "Celebration", color: "#7B1FA2" },
 };
 
-const pill = (bg: string, color: string): React.CSSProperties => ({
-  display: "inline-block", padding: "3px 10px", borderRadius: 20,
-  fontSize: 11, fontWeight: 600, background: bg, color,
-});
-
-const cardStyle: React.CSSProperties = {
-  background: C.white, borderRadius: 14,
-  border: `1px solid ${C.border}`, overflow: "hidden",
+// ─── Shared Components ───
+const Tag = ({ id }) => {
+  const t = tagMeta[id];
+  if (!t) return null;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600,
+      background: `${t.color}12`, color: t.color, letterSpacing: "0.01em",
+    }}>
+      <span style={{ width: 5, height: 5, borderRadius: "50%", background: t.color, opacity: 0.7 }} />
+      {t.label}
+    </span>
+  );
 };
 
-const btnPrimary: React.CSSProperties = {
-  background: C.forest, color: C.white, border: "none", borderRadius: 10,
-  padding: "14px 32px", fontSize: 15, fontWeight: 700, fontFamily: font,
-  cursor: "pointer", transition: "all 0.2s",
-};
+const Card = ({ children, style = {}, ...props }) => (
+  <div style={{
+    background: C.white, borderRadius: 12,
+    border: `1px solid ${C.border}`,
+    ...style,
+  }} {...props}>{children}</div>
+);
 
-const btnSecondary: React.CSSProperties = {
-  background: "transparent", color: C.forest, border: `2px solid ${C.forest}`,
-  borderRadius: 10, padding: "12px 28px", fontSize: 15, fontWeight: 700,
-  fontFamily: font, cursor: "pointer",
-};
-
-function TopNav({ screen }: { screen: string }) {
+// ─── Navigation ───
+function NavBar({ screen }) {
   return (
     <div style={{
-      background: C.charcoal, padding: "0 32px", height: 56,
-      display: "flex", alignItems: "center", justifyContent: "space-between", fontFamily: font,
+      background: C.white,
+      borderBottom: `1px solid ${C.border}`,
+      padding: "0 32px", height: 60,
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      fontFamily: font,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: 8,
-          background: `linear-gradient(135deg, ${C.forest}, ${C.forestLight})`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 15, fontWeight: 900, color: C.white,
-        }}>R</div>
-        <span style={{ color: C.white, fontSize: 16, fontWeight: 700 }}>Renegade Scratch</span>
-        <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginLeft: 4 }}>School Portal</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <CAFLogo size={32} />
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: C.dark, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+            Renegade Scratch
+          </span>
+          <span style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em", lineHeight: 1 }}>
+            Powered by Chef Ann Foundation
+          </span>
+        </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        {screen !== "notification" && (
+        {screen !== "dashboard" && (
           <div style={{ position: "relative", cursor: "pointer" }}>
-            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 20 }}>&#x1F514;</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
             <div style={{
-              position: "absolute", top: -4, right: -6, width: 16, height: 16,
-              borderRadius: "50%", background: C.coral, fontSize: 9, fontWeight: 800,
-              display: "flex", alignItems: "center", justifyContent: "center", color: C.white,
+              position: "absolute", top: -3, right: -5, width: 14, height: 14, borderRadius: "50%",
+              background: C.orange, fontSize: 8, fontWeight: 800, color: C.white,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>1</div>
           </div>
         )}
         <div style={{
           width: 34, height: 34, borderRadius: "50%",
-          background: `linear-gradient(135deg, ${C.warmRed}, ${C.coral})`,
+          background: `linear-gradient(135deg, ${C.green}, ${C.greenDark})`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 800, color: C.white, cursor: "pointer",
+          fontSize: 12, fontWeight: 700, color: C.white, cursor: "pointer",
         }}>JW</div>
       </div>
     </div>
   );
 }
 
-function DashboardScreen({ onOpen }: { onOpen: () => void }) {
+// ─── Footer ───
+function Footer() {
+  return (
+    <div style={{
+      borderTop: `1px solid ${C.border}`, padding: "24px 32px",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      fontFamily: font, fontSize: 12, color: C.subtle,
+      flexWrap: "wrap", gap: 12,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <CAFLogo size={18} />
+        <span>&copy; 2026 Chef Ann Foundation &middot; Renegade Scratch</span>
+      </div>
+      <div style={{ display: "flex", gap: 16 }}>
+        <span style={{ cursor: "pointer" }}>Privacy</span>
+        <span style={{ cursor: "pointer" }}>Terms</span>
+        <span style={{ cursor: "pointer" }}>Support</span>
+        <span style={{ cursor: "pointer" }}>chefannfoundation.org</span>
+      </div>
+    </div>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SCREEN 1 — Dashboard
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function Dashboard({ onOpen }) {
   const [vis, setVis] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setVis(true), 500); return () => clearTimeout(t); }, []);
+  useEffect(() => { setTimeout(() => setVis(true), 400); }, []);
 
   return (
     <div style={{
-      minHeight: "calc(100vh - 56px)", background: `linear-gradient(180deg, ${C.lightBg} 0%, ${C.cream} 100%)`,
-      fontFamily: font, display: "flex", flexDirection: "column", alignItems: "center", padding: "48px 24px",
+      fontFamily: font, background: C.offWhite,
+      minHeight: "calc(100vh - 60px)",
+      padding: "40px 24px 60px",
+      display: "flex", flexDirection: "column", alignItems: "center",
     }}>
-      <div style={{ textAlign: "center", marginBottom: 36 }}>
-        <div style={{ fontSize: 14, color: C.warmGray, fontWeight: 500, marginBottom: 6 }}>Good morning, James</div>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: C.charcoal, margin: 0, letterSpacing: "-0.02em" }}>
-          Your Dashboard
-        </h1>
-        <p style={{ color: C.warmGray, fontSize: 14, margin: "8px 0 0" }}>
-          {persona.school} &middot; {persona.location} &middot; {persona.students} students enrolled
-        </p>
-      </div>
+      <div style={{ width: "100%", maxWidth: 600 }}>
+        {/* Greeting */}
+        <div style={{ marginBottom: 32 }}>
+          <p style={{ fontSize: 14, color: C.muted, margin: "0 0 4px", fontWeight: 500 }}>Good morning, James</p>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: C.dark, margin: "0 0 6px", letterSpacing: "-0.02em" }}>
+            Your Dashboard
+          </h1>
+          <p style={{ fontSize: 14, color: C.muted, margin: 0 }}>
+            {persona.school} &middot; {persona.location} &middot; {persona.students} students
+          </p>
+        </div>
 
-      <div style={{
-        ...cardStyle, width: "100%", maxWidth: 560,
-        opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(-20px)",
-        transition: "all 0.5s cubic-bezier(0.4,0,0.2,1)",
-        border: `2px solid ${C.coral}`, boxShadow: "0 8px 32px rgba(191,54,12,0.12)",
-        cursor: "pointer",
-      }} onClick={onOpen}>
-        <div style={{
-          background: `linear-gradient(135deg, ${C.coral}, ${C.warmRedBright})`,
-          padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 16 }}>&#x1F4CB;</span>
-            <span style={{ color: C.white, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+        {/* Notification */}
+        <Card style={{
+          opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(-16px)",
+          transition: "all 0.5s cubic-bezier(0.4,0,0.2,1)",
+          border: `2px solid ${C.orange}`,
+          cursor: "pointer",
+          marginBottom: 24,
+        }} onClick={onOpen}>
+          <div style={{
+            background: C.orange, padding: "10px 20px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <span style={{ color: C.white, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               Action Required
             </span>
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}>Just now</span>
           </div>
-          <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}>Just now</span>
-        </div>
-        <div style={{ padding: "20px 24px" }}>
-          <h3 style={{ margin: "0 0 6px", fontSize: 17, fontWeight: 700, color: C.charcoal }}>
-            Confirm Your Upcoming Menu
-          </h3>
-          <p style={{ margin: "0 0 14px", fontSize: 14, color: C.warmGray, lineHeight: 1.5 }}>
-            Your <strong>{upcomingOrder.theme}</strong> menu for the week of {upcomingOrder.week} is ready for review. Please confirm meal counts by <strong>Thursday, April 17</strong>.
-          </p>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", gap: 10 }}>
-              <span style={pill(C.sage, C.forest)}>5-Day Menu</span>
-              <span style={pill(C.goldPale, "#B8860B")}>{persona.students} Meals/Day</span>
+          <div style={{ padding: "20px 24px" }}>
+            <h3 style={{ margin: "0 0 8px", fontSize: 17, fontWeight: 700, color: C.dark }}>
+              Confirm Your Upcoming Menu
+            </h3>
+            <p style={{ margin: "0 0 16px", fontSize: 14, color: C.body, lineHeight: 1.6 }}>
+              Your <strong style={{ color: C.greenDark }}>{order.emoji} {order.theme}</strong> menu for {order.week} is ready for review. Please confirm by <strong>Thursday, April 17</strong>.
+            </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", gap: 8 }}>
+                <span style={{
+                  padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                  background: C.greenPale, color: C.greenDark,
+                }}>5-Day Menu</span>
+                <span style={{
+                  padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                  background: C.goldPale, color: "#9A7B10",
+                }}>{persona.students} Meals/Day</span>
+              </div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.orange }}>Review &rarr;</span>
             </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.coral }}>Review &rarr;</span>
           </div>
+        </Card>
+
+        {/* Impact + Stats Row */}
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12,
+          marginBottom: 28,
+        }}>
+          {[
+            { label: "This Month", value: "$18,450", sub: "2,050 meals served", icon: "\u{1F4CA}" },
+            { label: "Parent Satisfaction", value: "98%", sub: "Spring survey", icon: "\u{2B50}" },
+            { label: "Scratch Score", value: "100%", sub: "Zero processed items", icon: "\u{1F331}" },
+          ].map((s, i) => (
+            <Card key={i} style={{
+              padding: "18px 14px", textAlign: "center",
+              opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(10px)",
+              transition: `all 0.5s cubic-bezier(0.4,0,0.2,1) ${0.2 + i * 0.1}s`,
+            }}>
+              <div style={{ fontSize: 20, marginBottom: 6 }}>{s.icon}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.dark }}>{s.value}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.body, marginTop: 3 }}>{s.label}</div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{s.sub}</div>
+            </Card>
+          ))}
         </div>
-      </div>
 
-      <div style={{
-        display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14,
-        width: "100%", maxWidth: 560, marginTop: 22,
-      }}>
-        {[
-          { label: "This Month", value: "$18,962", sub: "2,050 meals served", icon: "\u{1F4CA}" },
-          { label: "Parent Satisfaction", value: "98%", sub: "Spring survey", icon: "\u2B50" },
-          { label: "Scratch Score", value: "100%", sub: "Zero processed items", icon: "\u{1F525}" },
-        ].map((s, i) => (
-          <div key={i} style={{
-            ...cardStyle, padding: "16px 14px", textAlign: "center",
-            opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(10px)",
-            transition: `all 0.5s cubic-bezier(0.4,0,0.2,1) ${0.3 + i * 0.1}s`,
-          }}>
-            <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: C.charcoal }}>{s.value}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: C.body, marginTop: 2 }}>{s.label}</div>
-            <div style={{ fontSize: 10, color: C.warmGray, marginTop: 2 }}>{s.sub}</div>
+        {/* Mission Banner */}
+        <Card style={{
+          padding: "20px 24px", marginBottom: 28,
+          background: C.greenPale, border: `1px solid ${C.green}30`,
+          display: "flex", gap: 16, alignItems: "center",
+          opacity: vis ? 1 : 0,
+          transition: "opacity 0.5s 0.5s",
+        }}>
+          <div style={{ fontSize: 32, flexShrink: 0 }}>{"\u{1F3EB}"}</div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.greenDeep }}>Your Impact This Year</div>
+            <div style={{ fontSize: 13, color: C.body, lineHeight: 1.5, marginTop: 2 }}>
+              Potomac Ridge has served <strong>36,900 scratch-cooked meals</strong> since September — 100% made from whole ingredients. That's <strong>zero ultraprocessed foods</strong> reaching your students.
+            </div>
           </div>
-        ))}
-      </div>
+        </Card>
 
-      <div style={{ width: "100%", maxWidth: 560, marginTop: 28 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, color: C.warmGray, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+        {/* Recent */}
+        <h3 style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 10px" }}>
           Recent Deliveries
         </h3>
-        {pastOrders.map((o, i) => (
-          <div key={i} style={{
-            ...cardStyle, marginBottom: 8, padding: "13px 20px",
+        {history.map((o, i) => (
+          <Card key={i} style={{
+            marginBottom: 8, padding: "14px 20px",
             display: "flex", alignItems: "center", justifyContent: "space-between",
             opacity: vis ? 1 : 0, transition: `opacity 0.4s ${0.5 + i * 0.1}s`,
           }}>
             <div>
-              <span style={{ fontSize: 14, fontWeight: 600, color: C.charcoal }}>{o.theme}</span>
-              <span style={{ fontSize: 12, color: C.warmGray, marginLeft: 10 }}>{o.week}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: C.dark }}>{o.theme}</span>
+              <span style={{ fontSize: 12, color: C.muted, marginLeft: 10 }}>{o.week}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: C.body }}>{o.total}</span>
-              <span style={pill("#E8F5E9", C.forest)}>&#x2713; Delivered</span>
+              <span style={{
+                padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600,
+                background: C.greenPale, color: C.greenDark,
+              }}>&check; Delivered</span>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>
   );
 }
 
-function MenuReviewScreen({ onAdjust, onBack }: { onAdjust: () => void; onBack: () => void }) {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SCREEN 2 — Menu Review
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function MenuReview({ onAdjust, onBack }) {
   const [openDay, setOpenDay] = useState(0);
-  const weekTotal = upcomingOrder.currentCount * upcomingOrder.pricePerMeal * 5;
+  const weekTotal = order.count * order.price * 5;
 
   return (
     <div style={{
-      minHeight: "calc(100vh - 56px)", background: C.cream, fontFamily: font,
-      padding: "32px 24px 80px", display: "flex", flexDirection: "column", alignItems: "center",
+      fontFamily: font, background: C.offWhite,
+      minHeight: "calc(100vh - 60px)",
+      padding: "32px 24px 80px",
+      display: "flex", flexDirection: "column", alignItems: "center",
     }}>
-      <div style={{ width: "100%", maxWidth: 620 }}>
+      <div style={{ width: "100%", maxWidth: 640 }}>
         <button onClick={onBack} style={{
           background: "none", border: "none", fontFamily: font,
-          fontSize: 13, fontWeight: 600, color: C.warmGray, cursor: "pointer", padding: 0, marginBottom: 20,
+          fontSize: 13, fontWeight: 600, color: C.muted, cursor: "pointer", padding: 0, marginBottom: 20,
         }}>&larr; Back to Dashboard</button>
 
-        <div style={{
-          ...cardStyle, padding: "28px", border: "none",
-          background: `linear-gradient(135deg, ${C.forest} 0%, ${C.forestMid} 100%)`,
-          color: C.white, marginBottom: 20,
+        {/* Hero */}
+        <Card style={{
+          marginBottom: 20, border: "none", overflow: "hidden",
+          background: `linear-gradient(135deg, ${C.greenDeep} 0%, ${C.greenDark} 50%, ${C.green} 100%)`,
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div>
-              <div style={{ fontSize: 38, marginBottom: 8 }}>&#x1F30E;</div>
-              <h2 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em" }}>
-                Earth Week Harvest
+          {/* Image strip */}
+          <div style={{
+            height: 140, position: "relative",
+            backgroundImage: `url(https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=800&q=80)`,
+            backgroundSize: "cover", backgroundPosition: "center 40%",
+          }}>
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(to bottom, rgba(61,122,10,0.6), rgba(61,122,10,0.9))",
+            }} />
+            <div style={{ position: "relative", padding: "24px 28px" }}>
+              <div style={{
+                display: "inline-block", padding: "4px 12px", borderRadius: 20,
+                background: "rgba(255,255,255,0.2)", color: C.white,
+                fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em",
+                marginBottom: 10, backdropFilter: "blur(8px)",
+              }}>Week of Apr 20–24</div>
+              <h2 style={{ margin: "0 0 4px", fontSize: 26, fontWeight: 800, color: C.white, letterSpacing: "-0.02em" }}>
+                {order.emoji} {order.theme}
               </h2>
-              <p style={{ margin: 0, fontSize: 14, opacity: 0.85, lineHeight: 1.5, maxWidth: 380 }}>
-                {upcomingOrder.tagline}
+              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.5, maxWidth: 420 }}>
+                {order.tagline}
               </p>
             </div>
-            <div style={{
-              background: "rgba(255,255,255,0.15)", borderRadius: 12,
-              padding: "12px 16px", textAlign: "center",
-            }}>
-              <div style={{ fontSize: 11, opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>Week of</div>
-              <div style={{ fontSize: 15, fontWeight: 800, marginTop: 2 }}>Apr 20–24</div>
-            </div>
           </div>
+          {/* Stats strip */}
           <div style={{
-            marginTop: 20, display: "flex", gap: 20,
-            borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: 16,
+            padding: "16px 28px", display: "flex", gap: 28,
+            background: "rgba(0,0,0,0.15)",
           }}>
             {[
-              { label: "Daily Count", val: upcomingOrder.currentCount },
-              { label: "Per Meal", val: `$${upcomingOrder.pricePerMeal.toFixed(2)}` },
+              { label: "Daily Count", val: order.count },
+              { label: "Per Meal", val: `$${order.price.toFixed(2)}` },
               { label: "Weekly Total", val: `$${weekTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}` },
             ].map((d, i) => (
-              <div key={i} style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: 11, opacity: 0.65 }}>{d.label}</span>
-                <strong style={{ fontSize: 18, marginTop: 2 }}>{d.val}</strong>
+              <div key={i}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>{d.label}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.white, marginTop: 2 }}>{d.val}</div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
-        <h3 style={{ fontSize: 13, fontWeight: 700, color: C.warmGray, textTransform: "uppercase", letterSpacing: "0.06em", margin: "24px 0 12px" }}>
-          This Week&apos;s Menu
+        {/* Days */}
+        <h3 style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em", margin: "24px 0 12px" }}>
+          Daily Menus
         </h3>
-        {upcomingOrder.days.map((d, i) => {
+        {order.days.map((d, i) => {
           const isOpen = openDay === i;
           return (
-            <div key={i} style={{
-              ...cardStyle, marginBottom: 10, cursor: "pointer",
-              boxShadow: isOpen ? "0 4px 20px rgba(0,0,0,0.08)" : "none",
-              transition: "box-shadow 0.2s",
+            <Card key={i} style={{
+              marginBottom: 8, cursor: "pointer",
+              boxShadow: isOpen ? "0 4px 16px rgba(0,0,0,0.06)" : "none",
+              borderColor: isOpen ? C.green : C.border,
+              transition: "all 0.2s",
             }} onClick={() => setOpenDay(isOpen ? -1 : i)}>
               <div style={{
                 padding: "14px 20px", display: "flex",
@@ -296,218 +409,232 @@ function MenuReviewScreen({ onAdjust, onBack }: { onAdjust: () => void; onBack: 
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                   <div style={{
-                    width: 42, height: 42, borderRadius: 10,
-                    background: isOpen ? C.forest : C.lightBg,
-                    color: isOpen ? C.white : C.charcoal,
+                    width: 44, height: 44, borderRadius: 10,
+                    background: isOpen ? C.green : C.light,
+                    color: isOpen ? C.white : C.dark,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 12, fontWeight: 800, transition: "all 0.2s",
                   }}>{d.day.slice(0, 3).toUpperCase()}</div>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: C.charcoal }}>{d.entree}</div>
-                    <div style={{ fontSize: 12, color: C.warmGray, marginTop: 2 }}>
-                      {d.tags.map(t => tagColors[t]?.label || t).join("  \u00B7  ")}
+                    <div style={{ fontSize: 15, fontWeight: 700, color: C.dark }}>{d.entree}</div>
+                    <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap" }}>
+                      {d.tags.map(t => <Tag key={t} id={t} />)}
                     </div>
                   </div>
                 </div>
-                <span style={{
-                  fontSize: 18, color: C.warmGray,
-                  transform: isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s",
-                  display: "inline-block",
-                }}>&blacktriangledown;</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" style={{
+                  transform: isOpen ? "rotate(180deg)" : "rotate(0)",
+                  transition: "transform 0.2s", flexShrink: 0,
+                }}>
+                  <path d="M4 6l4 4 4-4" stroke={C.muted} strokeWidth="2" fill="none" strokeLinecap="round" />
+                </svg>
               </div>
               {isOpen && (
                 <div style={{ padding: "0 20px 18px", borderTop: `1px solid ${C.border}` }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, paddingTop: 14 }}>
                     {[
-                      { label: "Entr\u00E9e", val: d.entree, icon: "\u{1F37D}" },
+                      { label: "Entr\u00E9e", val: d.entree, icon: "\u{1F37D}\uFE0F" },
                       { label: "Side", val: d.side, icon: "\u{1F957}" },
                       { label: "Grain", val: d.grain, icon: "\u{1F35E}" },
                       { label: "Fruit", val: d.fruit, icon: "\u{1F34E}" },
                     ].map((item, j) => (
-                      <div key={j} style={{ background: C.lightBg, borderRadius: 10, padding: "12px 14px" }}>
-                        <div style={{ fontSize: 11, color: C.warmGray, fontWeight: 600, marginBottom: 4 }}>
+                      <div key={j} style={{ background: C.light, borderRadius: 10, padding: "12px 14px" }}>
+                        <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginBottom: 4 }}>
                           {item.icon} {item.label}
                         </div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: C.charcoal, lineHeight: 1.4 }}>{item.val}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: C.dark, lineHeight: 1.4 }}>{item.val}</div>
                       </div>
                     ))}
                   </div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                    {d.tags.map((t, k) => {
-                      const tc = tagColors[t];
-                      return tc ? <span key={k} style={pill(tc.bg, tc.text)}>{tc.label}</span> : null;
-                    })}
-                  </div>
                 </div>
               )}
-            </div>
+            </Card>
           );
         })}
 
-        <div style={{
-          ...cardStyle, padding: "20px 24px", marginTop: 24,
+        {/* Enrollment Nudge */}
+        <Card style={{
+          padding: "20px 24px", marginTop: 24,
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          background: C.goldPale, border: `1px solid ${C.gold}`, flexWrap: "wrap", gap: 16,
+          background: C.goldPale, border: `1px solid ${C.gold}40`,
+          flexWrap: "wrap", gap: 16,
         }}>
           <div style={{ flex: 1, minWidth: 240 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.charcoal }}>
-              &#x1F4E2; Enrollment Update Available
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.dark }}>
+              Enrollment Update Available
             </div>
-            <div style={{ fontSize: 13, color: C.warmGray, marginTop: 3 }}>
+            <div style={{ fontSize: 13, color: C.body, marginTop: 4, lineHeight: 1.5 }}>
               Potomac Ridge reports <strong>34 new students</strong> since your last order. Time to adjust?
             </div>
           </div>
-          <button onClick={onAdjust} style={{ ...btnPrimary, whiteSpace: "nowrap", flexShrink: 0 }}>
-            Adjust Meals &rarr;
-          </button>
-        </div>
+          <button onClick={onAdjust} style={{
+            background: C.green, color: C.white, border: "none", borderRadius: 8,
+            padding: "12px 24px", fontSize: 14, fontWeight: 700, fontFamily: font,
+            cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
+            transition: "background 0.2s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = C.greenDark}
+            onMouseLeave={e => e.currentTarget.style.background = C.green}
+          >Adjust Meals &rarr;</button>
+        </Card>
       </div>
     </div>
   );
 }
 
-function AdjustScreen({ onConfirm, onBack }: { onConfirm: (count: number) => void; onBack: () => void }) {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SCREEN 3 — Adjust Meals
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function Adjust({ onConfirm, onBack }) {
   const [count, setCount] = useState(persona.students);
   const [animCount, setAnimCount] = useState(persona.students);
   const [note, setNote] = useState("");
   const suggested = persona.students + persona.newStudents;
-  const weekTotal = count * upcomingOrder.pricePerMeal * 5;
+  const weekTotal = count * order.price * 5;
   const diff = count - persona.students;
 
   useEffect(() => {
     if (animCount !== count) {
-      const t = setTimeout(() => setAnimCount(prev => prev + (prev < count ? 1 : -1)), 8);
+      const t = setTimeout(() => setAnimCount(p => p + (p < count ? 1 : -1)), 8);
       return () => clearTimeout(t);
     }
   }, [animCount, count]);
 
   return (
     <div style={{
-      minHeight: "calc(100vh - 56px)", background: C.cream, fontFamily: font,
-      padding: "32px 24px 80px", display: "flex", flexDirection: "column", alignItems: "center",
+      fontFamily: font, background: C.offWhite,
+      minHeight: "calc(100vh - 60px)",
+      padding: "32px 24px 80px",
+      display: "flex", flexDirection: "column", alignItems: "center",
     }}>
       <div style={{ width: "100%", maxWidth: 540 }}>
         <button onClick={onBack} style={{
           background: "none", border: "none", fontFamily: font,
-          fontSize: 13, fontWeight: 600, color: C.warmGray, cursor: "pointer", padding: 0, marginBottom: 24,
+          fontSize: 13, fontWeight: 600, color: C.muted, cursor: "pointer", padding: 0, marginBottom: 24,
         }}>&larr; Back to Menu Review</button>
 
-        <h2 style={{ margin: "0 0 8px", fontSize: 26, fontWeight: 800, color: C.charcoal, letterSpacing: "-0.02em" }}>
+        <h2 style={{ margin: "0 0 6px", fontSize: 26, fontWeight: 700, color: C.dark, letterSpacing: "-0.02em" }}>
           Adjust Meal Count
         </h2>
-        <p style={{ margin: "0 0 28px", fontSize: 14, color: C.warmGray, lineHeight: 1.5 }}>
-          Update your daily meal count for the week of {upcomingOrder.week}.
+        <p style={{ margin: "0 0 28px", fontSize: 14, color: C.muted, lineHeight: 1.5 }}>
+          Update daily meals for the week of {order.week}.
         </p>
 
-        <div style={{
-          ...cardStyle, padding: "20px 24px", marginBottom: 24,
-          background: `linear-gradient(135deg, ${C.coralPale}, #FFF)`,
-          border: `1px solid ${C.coral}`,
+        {/* Alert */}
+        <Card style={{
+          padding: "20px 24px", marginBottom: 24,
+          background: C.orangeLight, border: `1px solid ${C.orange}30`,
         }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
             <div style={{
               width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-              background: C.coral, color: C.white,
+              background: C.orange, color: C.white,
               display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
-            }}>&#x1F4C8;</div>
+            }}>{"\u{1F4C8}"}</div>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: C.charcoal }}>Enrollment Increase Detected</div>
-              <div style={{ fontSize: 13, color: C.warmGray, marginTop: 2, lineHeight: 1.5 }}>
-                Potomac Ridge Academy has <strong>34 new students</strong> enrolled since your last order.
-                Your current daily count is <strong>410</strong>. Word is spreading — families are citing the meal program as a key enrollment factor.
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.dark }}>Enrollment Increase Detected</div>
+              <div style={{ fontSize: 13, color: C.body, marginTop: 3, lineHeight: 1.5 }}>
+                Potomac Ridge Academy has <strong>34 new students</strong> enrolled. Word is spreading — families are citing the scratch-cooked meal program as a key enrollment factor.
               </div>
             </div>
           </div>
           <button onClick={() => setCount(suggested)} style={{
-            ...btnSecondary, marginTop: 14, padding: "10px 20px", fontSize: 13,
-            borderColor: C.coral, color: C.coral,
-          }}>
-            Apply Suggested Count: {suggested} meals/day
-          </button>
-        </div>
+            background: "transparent", color: C.orange, border: `2px solid ${C.orange}`,
+            borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 700,
+            fontFamily: font, cursor: "pointer", marginTop: 14, transition: "all 0.2s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = C.orange; e.currentTarget.style.color = C.white; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.orange; }}
+          >Apply Suggested: {suggested} meals/day</button>
+        </Card>
 
-        <div style={{ ...cardStyle, padding: "28px 24px", marginBottom: 24 }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: C.warmGray, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+        {/* Counter */}
+        <Card style={{ padding: "28px 24px", marginBottom: 24 }}>
+          <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Daily Meal Count
           </label>
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center",
-            gap: 24, marginTop: 16, marginBottom: 20,
+            gap: 28, marginTop: 20, marginBottom: 24,
           }}>
             <button onClick={() => setCount(Math.max(100, count - 10))} style={{
-              width: 48, height: 48, borderRadius: 12, border: `2px solid ${C.border}`,
-              background: C.white, fontSize: 22, fontWeight: 700, cursor: "pointer", color: C.charcoal,
-              display: "flex", alignItems: "center", justifyContent: "center", fontFamily: font,
+              width: 50, height: 50, borderRadius: 12, border: `2px solid ${C.border}`,
+              background: C.white, fontSize: 22, fontWeight: 700, cursor: "pointer",
+              color: C.dark, fontFamily: font,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>&minus;</button>
-            <div style={{ textAlign: "center", minWidth: 120 }}>
+            <div style={{ textAlign: "center", minWidth: 130 }}>
               <div style={{
-                fontSize: 56, fontWeight: 900, color: C.charcoal,
+                fontSize: 60, fontWeight: 800, color: C.dark,
                 letterSpacing: "-0.03em", lineHeight: 1,
                 fontVariantNumeric: "tabular-nums",
               }}>{animCount}</div>
-              <div style={{ fontSize: 12, color: C.warmGray, marginTop: 4 }}>meals per day</div>
+              <div style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>meals per day</div>
             </div>
             <button onClick={() => setCount(count + 10)} style={{
-              width: 48, height: 48, borderRadius: 12, border: `2px solid ${C.forest}`,
-              background: C.sage, fontSize: 22, fontWeight: 700, cursor: "pointer", color: C.forest,
-              display: "flex", alignItems: "center", justifyContent: "center", fontFamily: font,
+              width: 50, height: 50, borderRadius: 12, border: `2px solid ${C.green}`,
+              background: C.greenPale, fontSize: 22, fontWeight: 700, cursor: "pointer",
+              color: C.greenDark, fontFamily: font,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>+</button>
           </div>
 
           <input type="range" min={200} max={600} value={count}
             onChange={e => setCount(parseInt(e.target.value))}
-            style={{ width: "100%", accentColor: C.forest, height: 6 }}
+            style={{ width: "100%", accentColor: C.green, height: 6 }}
           />
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.warmGray, marginTop: 6 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.subtle, marginTop: 6 }}>
             <span>200</span>
-            <span>Previous: {persona.students}</span>
+            <span style={{ color: C.muted, fontWeight: 600 }}>Previous: {persona.students}</span>
             <span>600</span>
           </div>
 
           {diff !== 0 && (
             <div style={{
-              marginTop: 16, padding: "12px 16px", borderRadius: 10,
-              background: diff > 0 ? C.sage : C.coralPale,
+              marginTop: 18, padding: "12px 16px", borderRadius: 10,
+              background: diff > 0 ? C.greenPale : C.redPale,
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: diff > 0 ? C.forest : C.warmRed }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: diff > 0 ? C.greenDeep : C.red }}>
                 {diff > 0 ? "+" : ""}{diff} meals/day vs. last week
               </span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: diff > 0 ? C.forest : C.warmRed }}>
-                {diff > 0 ? "+" : ""}${(diff * upcomingOrder.pricePerMeal * 5).toLocaleString("en-US", { minimumFractionDigits: 2 })} / week
+              <span style={{ fontSize: 13, fontWeight: 700, color: diff > 0 ? C.greenDeep : C.red }}>
+                {diff > 0 ? "+" : ""}${(diff * order.price * 5).toLocaleString("en-US", { minimumFractionDigits: 2 })} / week
               </span>
             </div>
           )}
-        </div>
+        </Card>
 
-        <div style={{ ...cardStyle, padding: "24px", marginBottom: 24 }}>
-          <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 700, color: C.charcoal }}>Order Summary</h3>
+        {/* Summary */}
+        <Card style={{ padding: "24px", marginBottom: 24 }}>
+          <h3 style={{ margin: "0 0 16px", fontSize: 15, fontWeight: 700, color: C.dark }}>Order Summary</h3>
           {[
-            { l: "Menu", v: upcomingOrder.theme },
-            { l: "Week", v: upcomingOrder.week },
+            { l: "Menu", v: `${order.emoji} ${order.theme}` },
+            { l: "Week", v: order.week },
             { l: "Daily Count", v: `${count} meals` },
-            { l: "Price Per Meal", v: `$${upcomingOrder.pricePerMeal.toFixed(2)}` },
-            { l: "Daily Subtotal", v: `$${(count * upcomingOrder.pricePerMeal).toLocaleString("en-US", { minimumFractionDigits: 2 })}` },
+            { l: "Price Per Meal", v: `$${order.price.toFixed(2)}` },
+            { l: "Daily Subtotal", v: `$${(count * order.price).toLocaleString("en-US", { minimumFractionDigits: 2 })}` },
           ].map((r, i) => (
             <div key={i} style={{
-              display: "flex", justifyContent: "space-between", padding: "8px 0",
+              display: "flex", justifyContent: "space-between", padding: "9px 0",
               borderBottom: `1px solid ${C.border}`, fontSize: 14,
             }}>
-              <span style={{ color: C.warmGray }}>{r.l}</span>
-              <span style={{ fontWeight: 600, color: C.charcoal }}>{r.v}</span>
+              <span style={{ color: C.muted }}>{r.l}</span>
+              <span style={{ fontWeight: 600, color: C.dark }}>{r.v}</span>
             </div>
           ))}
           <div style={{
             display: "flex", justifyContent: "space-between",
-            paddingTop: 14, marginTop: 4, fontSize: 18, fontWeight: 800,
+            paddingTop: 16, marginTop: 4, fontSize: 20, fontWeight: 800,
           }}>
-            <span style={{ color: C.charcoal }}>Weekly Total</span>
-            <span style={{ color: C.forest }}>${weekTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+            <span style={{ color: C.dark }}>Weekly Total</span>
+            <span style={{ color: C.green }}>${weekTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
           </div>
-        </div>
+        </Card>
 
-        <div style={{ ...cardStyle, padding: "20px 24px", marginBottom: 28 }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: C.warmGray, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+        {/* Note */}
+        <Card style={{ padding: "20px 24px", marginBottom: 28 }}>
+          <label style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Special Instructions (Optional)
           </label>
           <textarea value={note} onChange={e => setNote(e.target.value)}
@@ -518,55 +645,75 @@ function AdjustScreen({ onConfirm, onBack }: { onConfirm: (count: number) => voi
               resize: "vertical", minHeight: 70, boxSizing: "border-box", outline: "none",
             }}
           />
-        </div>
+        </Card>
 
+        {/* Actions */}
         <div style={{ display: "flex", gap: 12 }}>
-          <button onClick={onBack} style={btnSecondary}>Cancel</button>
-          <button onClick={() => onConfirm(count)} style={{ ...btnPrimary, flex: 1, fontSize: 16 }}>
-            Confirm Order &mdash; ${weekTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-          </button>
+          <button onClick={onBack} style={{
+            background: "transparent", color: C.muted, border: `2px solid ${C.border}`,
+            borderRadius: 8, padding: "14px 24px", fontSize: 15, fontWeight: 700,
+            fontFamily: font, cursor: "pointer",
+          }}>Cancel</button>
+          <button onClick={() => onConfirm(count)} style={{
+            background: C.green, color: C.white, border: "none", borderRadius: 8,
+            padding: "14px 24px", fontSize: 16, fontWeight: 700, fontFamily: font,
+            cursor: "pointer", flex: 1, transition: "background 0.2s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = C.greenDark}
+            onMouseLeave={e => e.currentTarget.style.background = C.green}
+          >Confirm Order &mdash; ${weekTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}</button>
         </div>
       </div>
     </div>
   );
 }
 
-function ConfirmationScreen({ finalCount, onReset }: { finalCount: number; onReset: () => void }) {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SCREEN 4 — Confirmation
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function Confirmation({ finalCount, onReset }) {
   const [show, setShow] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setShow(true), 200); return () => clearTimeout(t); }, []);
-  const weekTotal = finalCount * upcomingOrder.pricePerMeal * 5;
+  useEffect(() => { setTimeout(() => setShow(true), 200); }, []);
+  const weekTotal = finalCount * order.price * 5;
 
   return (
     <div style={{
-      minHeight: "calc(100vh - 56px)",
-      background: `linear-gradient(180deg, ${C.sage} 0%, ${C.cream} 50%)`,
-      fontFamily: font, display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center", padding: "48px 24px",
+      fontFamily: font,
+      background: `linear-gradient(180deg, ${C.greenMist} 0%, ${C.offWhite} 50%)`,
+      minHeight: "calc(100vh - 60px)",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      padding: "48px 24px",
     }}>
       <div style={{
-        textAlign: "center", maxWidth: 480,
-        opacity: show ? 1 : 0, transform: show ? "scale(1)" : "scale(0.95)",
+        textAlign: "center", maxWidth: 500,
+        opacity: show ? 1 : 0, transform: show ? "scale(1)" : "scale(0.96)",
         transition: "all 0.6s cubic-bezier(0.4,0,0.2,1)",
       }}>
         <div style={{
-          width: 80, height: 80, borderRadius: "50%", background: C.forest,
+          width: 72, height: 72, borderRadius: "50%",
+          background: `linear-gradient(135deg, ${C.green}, ${C.greenDark})`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          margin: "0 auto 24px", fontSize: 36, color: C.white,
-          boxShadow: "0 8px 32px rgba(27,94,32,0.3)",
-        }}>&#x2713;</div>
+          margin: "0 auto 24px", color: C.white,
+          boxShadow: `0 8px 28px ${C.green}40`,
+        }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
 
-        <h1 style={{ fontSize: 30, fontWeight: 900, color: C.charcoal, margin: "0 0 8px", letterSpacing: "-0.02em" }}>
-          Order Confirmed!
+        <h1 style={{ fontSize: 30, fontWeight: 800, color: C.dark, margin: "0 0 8px", letterSpacing: "-0.02em" }}>
+          Order Confirmed
         </h1>
-        <p style={{ fontSize: 15, color: C.warmGray, lineHeight: 1.6, margin: "0 0 32px" }}>
-          Your <strong>{upcomingOrder.theme}</strong> menu has been confirmed. A confirmation has been sent to <strong>{persona.email}</strong>.
+        <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.6, margin: "0 0 32px" }}>
+          Your <strong style={{ color: C.greenDark }}>{order.emoji} {order.theme}</strong> menu is locked in. Confirmation sent to <strong>{persona.email}</strong>.
         </p>
 
-        <div style={{ ...cardStyle, padding: "24px", textAlign: "left", marginBottom: 28 }}>
+        <Card style={{ padding: "24px", textAlign: "left", marginBottom: 20 }}>
           {[
             { l: "School", v: persona.school },
-            { l: "Menu", v: "\u{1F30E} Earth Week Harvest" },
-            { l: "Week", v: upcomingOrder.week },
+            { l: "Menu", v: `${order.emoji} ${order.theme}` },
+            { l: "Week", v: order.week },
             { l: "Daily Meals", v: finalCount },
             { l: "Weekly Total", v: `$${weekTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}` },
             { l: "Confirmation #", v: "RS-2026-04172" },
@@ -575,46 +722,58 @@ function ConfirmationScreen({ finalCount, onReset }: { finalCount: number; onRes
               display: "flex", justifyContent: "space-between", padding: "10px 0",
               borderBottom: i < 5 ? `1px solid ${C.border}` : "none", fontSize: 14,
             }}>
-              <span style={{ color: C.warmGray }}>{r.l}</span>
-              <span style={{ fontWeight: 700, color: C.charcoal }}>{r.v}</span>
+              <span style={{ color: C.muted }}>{r.l}</span>
+              <span style={{ fontWeight: 700, color: C.dark }}>{r.v}</span>
             </div>
           ))}
-        </div>
+        </Card>
 
-        <div style={{
-          ...cardStyle, padding: "16px 20px", background: C.goldPale,
-          border: `1px solid ${C.gold}`, fontSize: 13, color: C.body,
-          lineHeight: 1.5, textAlign: "left", marginBottom: 28,
+        <Card style={{
+          padding: "16px 20px", background: C.greenPale,
+          border: `1px solid ${C.green}30`,
+          fontSize: 13, color: C.body, lineHeight: 1.6, textAlign: "left",
+          marginBottom: 16,
         }}>
-          <strong>&#x1F4C5; Next Steps:</strong> Meals will be prepared at the Renegade Scratch Cooking Complex in Fairfax, VA and delivered fresh to Potomac Ridge Academy starting Monday at 10:30 AM. Your delivery liaison is <strong>Chef Maria Gonzalez</strong>.
-        </div>
+          <strong style={{ color: C.greenDeep }}>{"\u{1F69A}"} Delivery Details:</strong> Meals prepared at the <strong>Renegade Scratch Cooking Complex</strong> in Fairfax, VA. Fresh delivery to Potomac Ridge Academy every morning at 10:30 AM. Your liaison: <strong>Chef Maria Gonzalez</strong>.
+        </Card>
 
-        <div style={{
-          ...cardStyle, padding: "16px 20px", background: "#F3E8FD",
-          border: "1px solid #CE93D8", fontSize: 13, color: C.body,
-          lineHeight: 1.5, textAlign: "left", marginBottom: 28,
+        <Card style={{
+          padding: "16px 20px", background: C.bluePale,
+          border: `1px solid ${C.blue}25`,
+          fontSize: 13, color: C.body, lineHeight: 1.6, textAlign: "left",
+          marginBottom: 28,
         }}>
-          <strong>&#x1F3DB; Coming Up:</strong> Senator Warner&apos;s office has scheduled a farm-to-school tour of the Fairfax Cooking Complex on <strong>May 8th</strong>. Potomac Ridge has been invited as a featured partner school. Details to follow.
-        </div>
+          <strong style={{ color: C.blue }}>{"\u{1F3DB}\uFE0F"} Upcoming:</strong> Senator Warner's office has scheduled a <strong>farm-to-school tour</strong> of the Fairfax Cooking Complex on <strong>May 8th</strong>. Potomac Ridge has been invited as a featured partner school. Details to follow.
+        </Card>
 
-        <button onClick={onReset} style={btnSecondary}>&#x21BA; Restart Demo</button>
+        <button onClick={onReset} style={{
+          background: "transparent", color: C.muted, border: `2px solid ${C.border}`,
+          borderRadius: 8, padding: "12px 28px", fontSize: 14, fontWeight: 700,
+          fontFamily: font, cursor: "pointer",
+        }}>&#x21BA; Restart Demo</button>
       </div>
     </div>
   );
 }
 
-export default function RenegadeScratchDemo() {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MAIN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+export default function App() {
   const [screen, setScreen] = useState("dashboard");
   const [finalCount, setFinalCount] = useState(410);
 
   return (
-    <div style={{ fontFamily: font, background: C.cream, minHeight: "100vh" }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-      <TopNav screen={screen} />
-      {screen === "dashboard" && <DashboardScreen onOpen={() => setScreen("review")} />}
-      {screen === "review" && <MenuReviewScreen onAdjust={() => setScreen("adjust")} onBack={() => setScreen("dashboard")} />}
-      {screen === "adjust" && <AdjustScreen onConfirm={(c) => { setFinalCount(c); setScreen("confirmed"); }} onBack={() => setScreen("review")} />}
-      {screen === "confirmed" && <ConfirmationScreen finalCount={finalCount} onReset={() => setScreen("dashboard")} />}
+    <div style={{ fontFamily: font, background: C.offWhite, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+      <NavBar screen={screen} />
+      <div style={{ flex: 1 }}>
+        {screen === "dashboard" && <Dashboard onOpen={() => setScreen("review")} />}
+        {screen === "review" && <MenuReview onAdjust={() => setScreen("adjust")} onBack={() => setScreen("dashboard")} />}
+        {screen === "adjust" && <Adjust onConfirm={c => { setFinalCount(c); setScreen("confirmed"); }} onBack={() => setScreen("review")} />}
+        {screen === "confirmed" && <Confirmation finalCount={finalCount} onReset={() => setScreen("dashboard")} />}
+      </div>
+      <Footer />
     </div>
   );
 }

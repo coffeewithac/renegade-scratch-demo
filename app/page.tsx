@@ -97,7 +97,7 @@ const tagMeta = {
 
 // ─── Shared Components ───
 const Tag = ({ id }: { id: string }) => {
-  const t = tagMeta[id];
+  const t = (tagMeta as Record<string, { label: string; color: string }>)[id];
   if (!t) return null;
   return (
     <span style={{
